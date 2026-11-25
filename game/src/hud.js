@@ -11,11 +11,14 @@ const STEP_CODE = {
   rice: 'RCE', wok: 'WOK', egg: 'EGG', veg: 'VEG', chop: 'CHP',
 };
 
-export function drawHud(c, state, t) {
+export function drawHud(c, state, t, opts = {}) {
   drawScore(c, state);
   drawRail(c, state, t);
   drawClock(c, state);
   drawShiftBadge(c, state);
+  drawTonight(c, state, opts);
+  drawStationStrip(c, state, opts);
+  drawEventBanner(c, state);
   drawPlateCall(c, state);
   drawToast(c, state);
   if (state.over) drawEnd(c, state);
@@ -163,6 +166,91 @@ function drawShiftBadge(c, state) {
   c.moveTo(x + 206, y + 28);
   c.lineTo(x + 213, y + 32);
   c.stroke();
+}
+
+
+function drawTonight(c, state, opts = {}) {
+  // the service objectives a real shift HUD carries: what is done, what is left, and the streak
+  const x = 8;
+  const y = 74;
+  const compact = opts.zoom;
+  const w = compact ? 150 : 182;
+  const h = compact ? 132 : 214;
+  panel(c, x, y, w, h, 9, 'rgba(255,207,92,0.18)');
+  label(c, 'TONIGHT', x + 12, y + 17, { size: 9.5, weight: 800, color: 'rgba(255,207,92,0.85)' });
+  label(c, `${state.served} served`, x + w - 12, y + 17, { size: 9.5, weight: 800, color: 'rgba(230,240,235,0.6)', align: 'right' });
+  const goals = [
+    ['Serve 3 plates', state.served >= 3, `${Math.min(3, state.served)}/3`],
+    ['Fill a 4x combo', state.bestCombo >= 4, `${Math.min(4, state.bestCombo)}/4`],
+    ['Bank $60 in tips', state.score >= 60, `$${Math.min(60, state.score)}/60`],
+    ['Close with a clean rail', state.orders.length === 0, `${state.orders.length} left`],
+  ];
+  goals.slice(0, compact ? 3 : 4).forEach((g, i) => {
+    const gy = y + 34 + i * 24;
+    c.fillStyle = g[1] ? 'rgba(126,224,161,0.9)' : 'rgba(255,255,255,0.10)';
+    rr(c, x + 12, gy - 9, 13, 13, 3);
+    c.fill();
+    if (g[1]) label(c, 'v', x + 18.5, gy + 1.5, { size: 9, weight: 800, color: '#08170e', align: 'center' });
+    label(c, g[0], x + 32, gy + 2, { size: 9.4, weight: 700, color: g[1] ? 'rgba(220,240,230,0.9)' : 'rgba(210,225,215,0.55)' });
+    label(c, g[2], x + w - 12, gy + 2, { size: 8.6, weight: 800, color: g[1] ? PAL.good : 'rgba(210,225,215,0.45)', align: 'right' });
+  });
+  // shift progress at the foot of the panel
+  const p = Math.max(0, Math.min(1, 1 - state.clock / 132));
+  c.fillStyle = 'rgba(255,255,255,0.10)';
+  rr(c, x + 12, y + h - 22, w - 24, 7, 4);
+  c.fill();
+  c.fillStyle = 'rgba(255,207,92,0.85)';
+  rr(c, x + 12, y + h - 22, (w - 24) * p, 7, 4);
+  c.fill();
+  label(c, 'service', x + 12, y + h - 8, { size: 8.5, weight: 700, color: 'rgba(210,225,215,0.45)' });
+  label(c, state.shift === 3 ? 'RUSH HOUR' : state.shift === 2 ? 'dinner service' : 'opening', x + w - 12, y + h - 8, {
+    size: 8.5, weight: 800, align: 'right', color: state.shift === 3 ? 'rgba(255,150,90,0.9)' : 'rgba(210,225,215,0.5)',
+  });
+}
+
+function drawStationStrip(c, state, opts = {}) {
+  // the counter legend: what each station answers, so the kitchen reads without hovering anything
+  const x = 200;
+  const y = 446;
+  const w = opts.zoom ? 860 : 868;
+  panel(c, x, y, w, 36, 8, 'rgba(255,255,255,0.08)');
+  const cells = [
+    ['RICE', 'wok'], ['SKEWERS', 'grill'], ['VEG', 'sauce'], ['EGGS', 'plate'], ['PLATE', 'pass'],
+  ];
+  const cw = (w - 24) / cells.length;
+  cells.forEach((cell, i) => {
+    const cx = x + 12 + i * cw;
+    c.fillStyle = i === 4 ? 'rgba(126,224,161,0.16)' : 'rgba(255,255,255,0.05)';
+    rr(c, cx, y + 7, cw - 10, 22, 4);
+    c.fill();
+    label(c, cell[0], cx + 8, y + 21, { size: 8.6, weight: 800, color: 'rgba(230,240,235,0.75)' });
+    label(c, '> ' + cell[1].toUpperCase(), cx + cw - 18, y + 21, { size: 8.6, weight: 800, color: 'rgba(255,207,92,0.7)', align: 'right' });
+  });
+  label(c, 'WASD walk · E use · hold E cook · click a station', x + 2, y - 6, {
+    size: 8.4, weight: 600, color: 'rgba(210,225,215,0.38)',
+  });
+}
+
+function drawEventBanner(c, state) {
+  const hot = state.combo >= 4;
+  const text = hot ? 'FULL SERVICE!' : state.shift === 3 ? 'RUSH HOUR' : '';
+  if (!text) return;
+  const y = 120;
+  const w = text.length * 19 + 90;
+  c.save();
+  c.translate(640, y);
+  c.rotate(-0.02);
+  const g = c.createLinearGradient(-w / 2, 0, w / 2, 0);
+  g.addColorStop(0, 'rgba(255,120,60,0)');
+  g.addColorStop(0.5, hot ? 'rgba(255,120,60,0.22)' : 'rgba(255,207,92,0.16)');
+  g.addColorStop(1, 'rgba(255,120,60,0)');
+  c.fillStyle = g;
+  c.fillRect(-w / 2, -20, w, 40);
+  c.fillStyle = 'rgba(6,14,12,0.55)';
+  rr(c, -w / 2 + 26, -15, w - 52, 30, 6);
+  c.fill();
+  label(c, text, 0, 8, { size: 24, weight: 800, color: hot ? '#ffb073' : '#ffd9a0', align: 'center' });
+  c.restore();
 }
 
 function drawPlateCall(c, state) {

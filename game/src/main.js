@@ -203,7 +203,7 @@ function frame(now) {
   } else {
     drawScene(ctx, state, clockT, { shot: shotName });
   }
-  drawHud(ctx, state, clockT);
+  drawHud(ctx, state, clockT, { zoom });
   requestAnimationFrame(frame);
 }
 

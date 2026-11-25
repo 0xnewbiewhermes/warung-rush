@@ -38,7 +38,7 @@ export function stageShot(state, chef, name) {
     state.shift = 2;
     state.score = 186;
     state.tips = 9;
-    state.combo = 3;
+    state.combo = 5;
     state.served = 7;
     state.message = { text: 'Rush hour — the whole street is queuing', tone: 'warn' };
     state.messageT = 0;
