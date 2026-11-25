@@ -17,7 +17,7 @@ export function drawHud(c, state, t, opts = {}) {
   drawClock(c, state);
   drawShiftBadge(c, state);
   drawTonight(c, state, opts);
-  drawStationStrip(c, state, opts);
+  if (!opts.zoom) drawStationStrip(c, state, opts);
   drawEventBanner(c, state);
   drawPlateCall(c, state);
   drawToast(c, state);
@@ -174,7 +174,7 @@ function drawTonight(c, state, opts = {}) {
   const x = 8;
   const y = 74;
   const compact = opts.zoom;
-  const w = compact ? 150 : 182;
+  const w = compact ? 146 : 182;
   const h = compact ? 132 : 214;
   panel(c, x, y, w, h, 9, 'rgba(255,207,92,0.18)');
   label(c, 'TONIGHT', x + 12, y + 17, { size: 9.5, weight: 800, color: 'rgba(255,207,92,0.85)' });
