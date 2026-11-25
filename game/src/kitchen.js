@@ -316,6 +316,13 @@ function drawCounter(c, state, t) {
   c.fillStyle = sg;
   c.fillRect(0, LAYOUT.counterTop, 1280, 16);
 
+  for (const lx of [386, 646, 903, 1180]) {
+    const g = c.createRadialGradient(lx, LAYOUT.counterTop + 60, 8, lx, LAYOUT.counterTop + 60, 190);
+    g.addColorStop(0, 'rgba(255,190,110,0.16)');
+    g.addColorStop(1, 'rgba(255,190,110,0)');
+    c.fillStyle = g;
+    c.fillRect(lx - 200, LAYOUT.counterTop, 400, 190);
+  }
   for (const s of LAYOUT.stations) drawStation(c, s, state, t);
   drawProps(c, t);
   passAlcove(c, state, t);
@@ -439,7 +446,7 @@ function drawStation(c, s, state, t) {
     emberGlow(c, s.x, yTop + 70, 78, t);
     // three skewers lying across the grate, close enough to read at thumbnail size
     for (let i = 0; i < 3; i++) {
-      sataySkewer(c, s.x, yTop + 32 + i * 13, 100, 0.02, 0.72, { char: 0.4 + i * 0.1 });
+      sataySkewer(c, s.x, yTop + 30 + i * 14, 104, 0.02, 0.82, { char: 0.38 + i * 0.12 });
     }
     steam(c, s.x, yTop + 14, t + 0.8, 1.1, 0.3);
     if (!hideLabel) label(c, 'Grill', s.x, yTop + 120, { size: 11, color: near ? PAL.gold : 'rgba(215,230,220,0.6)', align: 'center', weight: 700 });
@@ -532,8 +539,20 @@ function passAlcove(c, state, t) {
   c.fillRect(x - 46, y0 + 38, 92, 6);
 
   const ready = state.passReady || ['satay', 'gado'];
-  plated(c, x - 40, LAYOUT.counterTop + 44, 40, ready.includes('satay') ? { satay: 3, sauce: true, garnish: true } : { rice: true });
-  plated(c, x + 38, LAYOUT.counterTop + 46, 36, ready.includes('gado') ? { veg: true, sauce: true, krupuk: true } : {});
+  // woven service mat under the pass plates
+  c.fillStyle = 'rgba(90,60,30,0.55)';
+  rr(c, x - 88, LAYOUT.counterTop + 34, 176, 76, 8);
+  c.fill();
+  c.strokeStyle = 'rgba(255,220,160,0.12)';
+  c.lineWidth = 1;
+  for (let i = 0; i < 7; i++) {
+    c.beginPath();
+    c.moveTo(x - 86, LAYOUT.counterTop + 40 + i * 10);
+    c.lineTo(x + 86, LAYOUT.counterTop + 40 + i * 10);
+    c.stroke();
+  }
+  plated(c, x - 40, LAYOUT.counterTop + 46, 46, ready.includes('satay') ? { satay: 3, sauce: true, garnish: true, sambal: true } : { rice: true });
+  plated(c, x + 44, LAYOUT.counterTop + 48, 40, ready.includes('gado') ? { veg: true, sauce: true, krupuk: true, garnish: true } : {});
   steam(c, x - 40, LAYOUT.counterTop + 22, t, 0.9, 0.3);
   steam(c, x + 38, LAYOUT.counterTop + 24, t + 1.4, 0.9, 0.24);
   c.fillStyle = 'rgba(126,224,161,0.94)';

@@ -299,7 +299,7 @@ export function plated(c, x, y, s, parts = {}) {
   c.ellipse(x - s * 0.32, y - s * 0.22, s * 0.26, s * 0.09, -0.35, 0, Math.PI * 2);
   c.fill();
 
-  if (p.veg) {
+  if (p.veg || p.satay > 0) {
     c.fillStyle = PAL.leaf;
     c.beginPath();
     c.ellipse(x + s * 0.1, y + s * 0.02, s * 0.62, s * 0.34, 0.08, 0, Math.PI * 2);
