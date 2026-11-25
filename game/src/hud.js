@@ -25,7 +25,7 @@ export function drawHud(c, state, t, opts = {}) {
 }
 
 function panel(c, x, y, w, h, r = 9, stroke = 'rgba(255,255,255,0.10)') {
-  c.fillStyle = 'rgba(6,14,12,0.82)';
+  c.fillStyle = 'rgba(6,14,12,0.9)';
   rr(c, x, y, w, h, r);
   c.fill();
   c.strokeStyle = stroke;
@@ -180,10 +180,10 @@ function drawTonight(c, state, opts = {}) {
   label(c, 'TONIGHT', x + 12, y + 17, { size: 9.5, weight: 800, color: 'rgba(255,207,92,0.85)' });
   label(c, `${state.served} served`, x + w - 12, y + 17, { size: 9.5, weight: 800, color: 'rgba(230,240,235,0.6)', align: 'right' });
   const goals = [
-    ['Serve 3 plates', state.served >= 3, `${Math.min(3, state.served)}/3`],
-    ['Fill a 4x combo', state.bestCombo >= 4, `${Math.min(4, state.bestCombo)}/4`],
-    ['Bank $60 in tips', state.score >= 60, `$${Math.min(60, state.score)}/60`],
-    ['Close with a clean rail', state.orders.length === 0, `${state.orders.length} left`],
+    ['Serve 3', state.served >= 3, `${Math.min(3, state.served)}/3`],
+    ['4x combo', state.bestCombo >= 4, `${Math.min(4, state.bestCombo)}/4`],
+    ['Bank $60', state.score >= 60, `$${Math.min(60, state.score)}`],
+    ['Clean rail', state.orders.length === 0, `${state.orders.length}`],
   ];
   goals.slice(0, compact ? 3 : 4).forEach((g, i) => {
     const gy = y + 34 + i * 24;
@@ -246,10 +246,13 @@ function drawEventBanner(c, state) {
   g.addColorStop(1, 'rgba(255,120,60,0)');
   c.fillStyle = g;
   c.fillRect(-w / 2, -20, w, 40);
-  c.fillStyle = 'rgba(6,14,12,0.55)';
-  rr(c, -w / 2 + 26, -15, w - 52, 30, 6);
-  c.fill();
-  label(c, text, 0, 8, { size: 24, weight: 800, color: hot ? '#ffb073' : '#ffd9a0', align: 'center' });
+  c.font = '800 26px ui-sans-serif, system-ui, sans-serif';
+  c.textAlign = 'center';
+  c.textBaseline = 'alphabetic';
+  c.fillStyle = 'rgba(0,0,0,0.55)';
+  c.fillText(text, 2, 12);
+  c.fillStyle = hot ? '#ffc38a' : '#ffe2b0';
+  c.fillText(text, 0, 10);
   c.restore();
 }
 
