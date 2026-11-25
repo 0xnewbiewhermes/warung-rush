@@ -151,7 +151,7 @@ export function partsOf(state) {
 
 export function drawScene(c, state, t, opts = {}) {
   drawHeader(c);
-  drawWall(c, t);
+  drawWall(c, t, opts);
   drawCounter(c, state, t);
   drawFloor(c);
   drawChef(c, state, t, opts);
@@ -170,7 +170,7 @@ function drawHeader(c) {
   c.fillRect(0, LAYOUT.bandBottom - 2, 1280, 2);
 }
 
-function drawWall(c, t) {
+function drawWall(c, t, opts = {}) {
   const y0 = LAYOUT.bandBottom;
   const h = LAYOUT.wallBottom - y0;
   const wg = c.createLinearGradient(0, y0, 0, LAYOUT.wallBottom);
@@ -233,8 +233,8 @@ function drawWall(c, t) {
     c.fill();
   }
 
-  // hand-painted name over the wok
-  paintSign(c, 700, 150, 236, 'WARUNG RUSH');
+  // hand-painted name over the wok (skipped on a zoomed frame, where the rail covers it)
+  if (!opts.zoom) paintSign(c, 700, 150, 236, 'WARUNG RUSH');
   utensil(c, 300, 132);
   utensil(c, 330, 128);
 }
@@ -345,6 +345,43 @@ function drawFloor(c) {
 
 
 function drawProps(c, t) {
+  // the front band: a rice sack, a lime basket, a bowl stack and a hanging ladle
+  c.fillStyle = '#d9cba6';
+  c.beginPath();
+  c.moveTo(232, 372);
+  c.quadraticCurveTo(214, 336, 236, 330);
+  c.quadraticCurveTo(258, 330, 258, 352);
+  c.quadraticCurveTo(262, 366, 256, 372);
+  c.closePath();
+  c.fill();
+  c.strokeStyle = 'rgba(120,95,60,0.6)';
+  c.lineWidth = 1.5;
+  c.beginPath();
+  c.moveTo(224, 344);
+  c.quadraticCurveTo(240, 338, 258, 344);
+  c.stroke();
+  label(c, 'beras', 240, 360, { size: 8, weight: 800, color: '#6b5a3a', align: 'center' });
+  // lime basket
+  c.strokeStyle = '#8a5f2a';
+  c.lineWidth = 2;
+  c.beginPath();
+  c.ellipse(1082, 352, 34, 14, 0, 0, Math.PI * 2);
+  c.stroke();
+  c.fillStyle = 'rgba(80,55,25,0.35)';
+  c.fill();
+  for (let i = 0; i < 5; i++) {
+    c.fillStyle = i % 2 ? '#5fae42' : '#79c24e';
+    c.beginPath();
+    c.arc(1062 + i * 11, 346 - (i % 3) * 4, 7, 0, Math.PI * 2);
+    c.fill();
+  }
+  // stack of bowls
+  for (let i = 0; i < 3; i++) {
+    c.fillStyle = i % 2 ? '#e8ddd0' : '#f3ece2';
+    c.beginPath();
+    c.ellipse(624, 356 - i * 7, 26, 9, 0, 0, Math.PI * 2);
+    c.fill();
+  }
   // a bowl of chilies
   c.fillStyle = '#1d2a2a';
   c.beginPath();
@@ -428,12 +465,12 @@ function drawStation(c, s, state, t) {
 
   const hideLabel = state.chef && Math.abs(state.chef.x - s.x) < 74;
   if (s.kind === 'tray') {
-    tray(c, s.x - s.w / 2, yTop + 18, s.w, 64, s.ing, t);
+    tray(c, s.x - s.w / 2, yTop + 10, s.w, 76, s.ing, t);
     if (!hideLabel) label(c, s.name, s.x, yTop + 100, { size: 11, color: near ? PAL.gold : 'rgba(215,230,220,0.6)', align: 'center', weight: 700 });
   }
 
   if (s.kind === 'wok') {
-    wok(c, s.x, yTop + 56, 56, { heat: state.cooking && state.cooking.station === s.id ? 1 : 0.2, contents: state.wokContents !== false });
+    wok(c, s.x, yTop + 54, 62, { heat: state.cooking && state.cooking.station === s.id ? 1 : 0.2, contents: state.wokContents !== false });
     if (state.cooking && state.cooking.station === s.id) {
       steam(c, s.x, yTop + 26, t, 1.2, 0.45);
       sparks(c, s.x, yTop + 30, t, 5);
@@ -442,7 +479,7 @@ function drawStation(c, s, state, t) {
   }
 
   if (s.kind === 'grill') {
-    grill(c, s.x, yTop + 54, 62, { t });
+    grill(c, s.x, yTop + 52, 68, { t });
     emberGlow(c, s.x, yTop + 70, 78, t);
     // three skewers lying across the grate, close enough to read at thumbnail size
     for (let i = 0; i < 3; i++) {
@@ -465,7 +502,7 @@ function drawStation(c, s, state, t) {
     c.beginPath();
     c.ellipse(s.x, yTop + 56, 28, 14, 0, 0, Math.PI * 2);
     c.fill();
-    peanutSauce(c, s.x, yTop + 55, 23);
+    peanutSauce(c, s.x, yTop + 55, 26);
     if (!hideLabel) label(c, 'Sauce', s.x, yTop + 96, { size: 11, color: near ? PAL.gold : 'rgba(215,230,220,0.6)', align: 'center', weight: 700 });
   }
 
@@ -486,7 +523,7 @@ function drawStation(c, s, state, t) {
     rr(c, s.x - 53, yTop + 17, 106, 74, 6);
     c.stroke();
     if (state.plate.items.length > 0 || state.hand === 'plate') {
-      plated(c, s.x, yTop + 54, 44, partsOf(state));
+      plated(c, s.x, yTop + 52, 50, partsOf(state));
       if (state.plate.burnt) {
         c.fillStyle = 'rgba(25,12,5,0.5)';
         c.beginPath();
@@ -551,8 +588,8 @@ function passAlcove(c, state, t) {
     c.lineTo(x + 86, LAYOUT.counterTop + 40 + i * 10);
     c.stroke();
   }
-  plated(c, x - 40, LAYOUT.counterTop + 46, 46, ready.includes('satay') ? { satay: 3, sauce: true, garnish: true, sambal: true } : { rice: true });
-  plated(c, x + 44, LAYOUT.counterTop + 48, 40, ready.includes('gado') ? { veg: true, sauce: true, krupuk: true, garnish: true } : {});
+  plated(c, x - 40, LAYOUT.counterTop + 46, 52, ready.includes('satay') ? { satay: 3, sauce: true, garnish: true, sambal: true } : { rice: true });
+  plated(c, x + 44, LAYOUT.counterTop + 48, 46, ready.includes('gado') ? { veg: true, sauce: true, krupuk: true, garnish: true } : {});
   steam(c, x - 40, LAYOUT.counterTop + 22, t, 0.9, 0.3);
   steam(c, x + 38, LAYOUT.counterTop + 24, t + 1.4, 0.9, 0.24);
   c.fillStyle = 'rgba(126,224,161,0.94)';

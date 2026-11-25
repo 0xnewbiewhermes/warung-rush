@@ -13,6 +13,10 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const params = new URLSearchParams(location.search);
 const shotName = params.get('shot');
 const seed = Number(params.get('seed') || 7) || 7;
+const zoom = Number(params.get('zoom') || 1) || 1;
+const fx = Number(params.get('fx') || 640) || 640;
+const fy = Number(params.get('fy') || 250) || 250;
+const dy = Number(params.get('dy') || 0) || 0;
 
 const state = new Shift(seed);
 const chef = { x: 620, facing: 1, walking: false, carry: null };
@@ -188,7 +192,17 @@ function frame(now) {
   }
 
   ctx.clearRect(0, 0, 1280, 480);
-  drawScene(ctx, state, clockT, { shot: shotName });
+  if (zoom !== 1) {
+    // a closer camera for a staged screenshot: the world is drawn larger, the HUD stays legible
+    ctx.save();
+    ctx.translate(640, 240 + dy);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-fx, -fy);
+    drawScene(ctx, state, clockT, { shot: shotName, zoom });
+    ctx.restore();
+  } else {
+    drawScene(ctx, state, clockT, { shot: shotName });
+  }
   drawHud(ctx, state, clockT);
   requestAnimationFrame(frame);
 }
