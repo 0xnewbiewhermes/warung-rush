@@ -40,6 +40,12 @@ export function stageShot(state, chef, name) {
     state.tips = 9;
     state.combo = 5;
     state.served = 7;
+    state.walkouts = 1;
+    state.customers = [
+      { dish: 'satay', fuse: 0.42 },
+      { dish: 'nasi', fuse: 0.72 },
+      { dish: 'gado', fuse: 0.22 },
+    ];
     state.message = { text: 'Rush hour — the whole street is queuing', tone: 'warn' };
     state.messageT = 0;
     chef.x = 966;

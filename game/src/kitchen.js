@@ -154,6 +154,7 @@ export function drawScene(c, state, t, opts = {}) {
   drawWall(c, t, opts);
   drawCounter(c, state, t);
   drawFloor(c);
+  customers(c, state, t);
   drawChef(c, state, t, opts);
   drawHand(c, state, t);
   c.fillStyle = '#1a1009';
@@ -596,6 +597,87 @@ function passAlcove(c, state, t) {
   rr(c, x - 32, LAYOUT.counterTop + 96, 64, 18, 4);
   c.fill();
   label(c, 'READY', x, LAYOUT.counterTop + 109, { size: 10, weight: 800, color: '#08170e', align: 'center' });
+}
+
+function customers(c, state, t) {
+  // people at the counter, each with the ticket they are waiting on: the frame's proof of a live loop
+  const spots = [{ x: 360, y: 428, c: '#2c4a52' }, { x: 470, y: 436, c: '#4a2f3a' }, { x: 600, y: 424, c: '#3a4a2c' }];
+  const waiting = state.customers || [
+    { dish: 'satay', fuse: 0.42 },
+    { dish: 'nasi', fuse: 0.7 },
+    { dish: 'gado', fuse: 0.25 },
+  ];
+  spots.forEach((s2, i) => {
+    const w = waiting[i];
+    if (!w) return;
+    const bob = Math.sin(t * 1.6 + i * 1.7) * 2;
+    c.save();
+    c.translate(s2.x, s2.y + bob);
+    // body
+    c.fillStyle = s2.c;
+    c.beginPath();
+    c.moveTo(-26, 34);
+    c.quadraticCurveTo(-30, -6, 0, -8);
+    c.quadraticCurveTo(30, -6, 26, 34);
+    c.closePath();
+    c.fill();
+    // head
+    c.fillStyle = '#c98a5a';
+    c.beginPath();
+    c.arc(0, -20, 13, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = 'rgba(0,0,0,0.25)';
+    c.beginPath();
+    c.arc(0, -26, 13, Math.PI, 0);
+    c.fill();
+    // eyes
+    c.fillStyle = '#1a2220';
+    c.beginPath();
+    c.arc(-4.5, -19, 1.8, 0, Math.PI * 2);
+    c.fill();
+    c.beginPath();
+    c.arc(4.5, -19, 1.8, 0, Math.PI * 2);
+    c.fill();
+    // order bubble with the dish and its fuse
+    const bx = 0;
+    const by = -64;
+    c.fillStyle = 'rgba(247,240,220,0.94)';
+    rr(c, bx - 26, by - 16, 52, 30, 6);
+    c.fill();
+    c.fillStyle = 'rgba(247,240,220,0.94)';
+    c.beginPath();
+    c.moveTo(-5, by + 14);
+    c.lineTo(5, by + 14);
+    c.lineTo(0, by + 22);
+    c.closePath();
+    c.fill();
+    if (w.dish === 'satay') {
+      sataySkewer(c, bx, by - 2, 34, -0.12, 0.44, { char: 0.4 });
+    } else if (w.dish === 'nasi') {
+      riceMound(c, bx - 4, by + 2, 10);
+      c.fillStyle = '#f0b93f';
+      c.beginPath();
+      c.arc(bx + 8, by - 2, 4, 0, Math.PI * 2);
+      c.fill();
+    } else {
+      c.fillStyle = PAL.leaf;
+      c.beginPath();
+      c.ellipse(bx, by - 2, 14, 8, 0.2, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = '#a8cf6a';
+      c.beginPath();
+      c.ellipse(bx - 4, by - 5, 7, 4, 0.4, 0, Math.PI * 2);
+      c.fill();
+    }
+    // fuse under the bubble
+    c.fillStyle = 'rgba(29,42,38,0.18)';
+    rr(c, bx - 20, by + 16, 40, 4, 2);
+    c.fill();
+    c.fillStyle = w.fuse < 0.35 ? '#cf3f2c' : '#4f9d63';
+    rr(c, bx - 20, by + 16, 40 * w.fuse, 4, 2);
+    c.fill();
+    c.restore();
+  });
 }
 
 function drawChef(c, state, t, opts) {
