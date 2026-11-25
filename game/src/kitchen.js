@@ -601,7 +601,7 @@ function passAlcove(c, state, t) {
 
 function customers(c, state, t) {
   // people at the counter, each with the ticket they are waiting on: the frame's proof of a live loop
-  const spots = [{ x: 360, y: 428, c: '#2c4a52' }, { x: 470, y: 436, c: '#4a2f3a' }, { x: 600, y: 424, c: '#3a4a2c' }];
+  const spots = [{ x: 356, y: 414, c: '#2c4a52' }, { x: 466, y: 420, c: '#4a2f3a' }, { x: 592, y: 410, c: '#3a4a2c' }];
   const waiting = state.customers || [
     { dish: 'satay', fuse: 0.42 },
     { dish: 'nasi', fuse: 0.7 },
@@ -688,7 +688,7 @@ function drawChef(c, state, t, opts) {
   shadow(c, x, y + 30, 44, 12, 0.5);
   c.save();
   c.translate(x, y + bob);
-  c.scale(1.12, 1.12);
+  c.scale(1.08, 1.08);
   const flip = chef.facing >= 0 ? 1 : -1;
   c.scale(flip, 1);
   c.fillStyle = '#26343d';
@@ -756,7 +756,7 @@ function drawChef(c, state, t, opts) {
   c.restore();
 
   if (state.hand === 'plate') {
-    const hx = x + (flip > 0 ? 40 : -40);
+    const hx = x + (flip > 0 ? 44 : -44);
     c.strokeStyle = '#cf9463';
     c.lineWidth = 8;
     c.lineCap = 'round';
