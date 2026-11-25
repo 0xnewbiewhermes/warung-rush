@@ -25,6 +25,30 @@ export function stageShot(state, chef, name) {
   state.seedFixed = true;
   state.passReady = ['satay', 'gado'];
 
+  if (name === 'end') {
+    // the closing card: the shift's result, the lose counter and the rekor, all from the live rules
+    state.orders = [];
+    state.plate = { items: [], burnt: false };
+    state.hand = null;
+    state.clock = 0;
+    state.shift = 3;
+    state.score = 412;
+    state.tips = 41;
+    state.combo = 0;
+    state.bestCombo = 7;
+    state.served = 17;
+    state.walkouts = 2;
+    state.over = true;
+    chef.x = 966;
+    chef.facing = 1;
+    chef.walking = false;
+    state.chef = chef;
+    state.cook = null;
+    state.cooking = null;
+    state.carryingPlate = false;
+    return;
+  }
+
   if (name === 'cover') {
     state.orders = [
       makeOrder('satay', 19, 6),

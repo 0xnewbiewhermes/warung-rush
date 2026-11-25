@@ -105,6 +105,7 @@ export class Shift {
     this.bestCombo = 0;
     this.served = 0;
     this.burned = 0;
+    this.walkouts = 0; // tickets that expired: the lose condition the score panel shows
     this.spawnTimer = 2.2;
     this.shift = 1;
     this.message = null;
@@ -160,6 +161,7 @@ export class Shift {
         o.fuse = 0;
         o.state = 'expired';
         this.combo = 0;
+        this.walkouts += 1;
         this.notify(`${o.name} walked out`, 'bad');
         this.addPop(150, 250, '-', 'bad');
       }

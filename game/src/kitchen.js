@@ -158,7 +158,7 @@ export function drawScene(c, state, t, opts = {}) {
   drawChef(c, state, t, opts);
   drawHand(c, state, t);
   c.fillStyle = '#1a1009';
-  c.fillRect(0, LAYOUT.counterBottom - 6, 1280, 10);
+  c.fillRect(-360, LAYOUT.counterBottom - 6, 2000, 10);
 }
 
 function drawHeader(c) {
@@ -166,9 +166,9 @@ function drawHeader(c) {
   hg.addColorStop(0, '#050d0f');
   hg.addColorStop(1, '#0a1a1d');
   c.fillStyle = hg;
-  c.fillRect(0, 0, 1280, LAYOUT.bandBottom);
+  c.fillRect(-360, 0, 2000, LAYOUT.bandBottom);
   c.fillStyle = 'rgba(255,190,120,0.18)';
-  c.fillRect(0, LAYOUT.bandBottom - 2, 1280, 2);
+  c.fillRect(-360, LAYOUT.bandBottom - 2, 2000, 2);
 }
 
 function drawWall(c, t, opts = {}) {
@@ -178,7 +178,7 @@ function drawWall(c, t, opts = {}) {
   wg.addColorStop(0, '#0d272c');
   wg.addColorStop(1, '#081a1e');
   c.fillStyle = wg;
-  c.fillRect(0, y0, 1280, h);
+  c.fillRect(-360, y0, 2000, h);
   c.save();
   c.beginPath();
   c.rect(0, y0, 1280, h);
@@ -304,18 +304,18 @@ function utensil(c, x, y) {
 }
 
 function drawCounter(c, state, t) {
-  counter(c, 0, LAYOUT.counterTop, 1280, LAYOUT.counterFront - LAYOUT.counterTop + 10);
+  counter(c, -360, LAYOUT.counterTop, 2000, LAYOUT.counterFront - LAYOUT.counterTop + 10);
   const ag = c.createLinearGradient(0, LAYOUT.counterFront, 0, LAYOUT.counterBottom);
   ag.addColorStop(0, '#5d3118');
   ag.addColorStop(1, '#2a160b');
   c.fillStyle = ag;
-  c.fillRect(0, LAYOUT.counterFront, 1280, LAYOUT.counterBottom - LAYOUT.counterFront);
+  c.fillRect(-360, LAYOUT.counterFront, 2000, LAYOUT.counterBottom - LAYOUT.counterFront);
   // back edge shadow so the counter reads as depth
   const sg = c.createLinearGradient(0, LAYOUT.counterTop, 0, LAYOUT.counterTop + 16);
   sg.addColorStop(0, 'rgba(0,0,0,0.45)');
   sg.addColorStop(1, 'rgba(0,0,0,0)');
   c.fillStyle = sg;
-  c.fillRect(0, LAYOUT.counterTop, 1280, 16);
+  c.fillRect(-360, LAYOUT.counterTop, 2000, 16);
 
   for (const lx of [386, 646, 903, 1180]) {
     const g = c.createRadialGradient(lx, LAYOUT.counterTop + 60, 8, lx, LAYOUT.counterTop + 60, 190);
@@ -334,9 +334,9 @@ function drawFloor(c) {
   g.addColorStop(0, '#0f1e19');
   g.addColorStop(1, '#050c0a');
   c.fillStyle = g;
-  c.fillRect(0, LAYOUT.floorTop, 1280, 480 - LAYOUT.floorTop);
+  c.fillRect(-360, LAYOUT.floorTop, 2000, 480 - LAYOUT.floorTop);
   c.strokeStyle = 'rgba(255,255,255,0.035)';
-  for (let x = 0; x < 1280; x += 76) {
+  for (let x = -360; x < 1640; x += 76) {
     c.beginPath();
     c.moveTo(x, LAYOUT.floorTop);
     c.lineTo(x + 34, 480);
@@ -602,11 +602,8 @@ function passAlcove(c, state, t) {
 function customers(c, state, t) {
   // people at the counter, each with the ticket they are waiting on: the frame's proof of a live loop
   const spots = [{ x: 356, y: 414, c: '#2c4a52' }, { x: 466, y: 420, c: '#4a2f3a' }, { x: 592, y: 410, c: '#3a4a2c' }];
-  const waiting = state.customers || [
-    { dish: 'satay', fuse: 0.42 },
-    { dish: 'nasi', fuse: 0.7 },
-    { dish: 'gado', fuse: 0.25 },
-  ];
+  const live = (state.orders || []).filter((o) => o.state === 'active').slice(0, 3);
+  const waiting = state.customers || live.map((o) => ({ dish: o.recipeId, fuse: o.fuse / (o.maxFuse || 1) }));
   spots.forEach((s2, i) => {
     const w = waiting[i];
     if (!w) return;
